@@ -1,0 +1,23 @@
+int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
+    for (int i = 0; i < numsSize; i++) {
+        for (int j = i + 1; j < numsSize; j++) {
+            if (nums[i] + nums[j] == target) {
+                int* result = (int*)malloc(2 * sizeof(int));
+                if (result == NULL) {
+                    *returnSize = 0;
+                    return NULL;
+                }
+                result[0] = i;
+                result[1] = j;
+                *returnSize = 2;
+                return result;
+            }
+        }
+    }
+ 
+    *returnSize = 0;
+    return NULL;
+}
+
+思路： 我使用兩層 for 迴圈。外層迴圈遍歷索引 i，內層迴圈從 i+1 開始遍歷索引 j，
+以 O(n^2) 的方式檢查所有 (i, j) 組合，直到找到 nums[i] + nums[j] == target 並回傳。

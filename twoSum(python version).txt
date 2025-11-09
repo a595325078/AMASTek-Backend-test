@@ -1,0 +1,17 @@
+class Solution:
+
+    def twoSum(self, nums: list[int], target: int) -> list[int]:
+
+        num_map = {}
+
+        for index, num in enumerate(nums):
+            complement = target - num
+            if complement in num_map:
+                return [num_map[complement], index]
+            num_map[num] = index
+
+        return []
+
+我使用一個雜湊表 (Hash Map) seen_map 來儲存已遍歷過的數字及其索引。
+我只遍歷 nums 陣列一次，在迴圈中，我計算 target 與當前數字 num 的「補數」complement，
+並檢查這個「補數」是否已存在於 seen_map 中；若存在，即找到解並回傳索引；若不存在，則將當前的 num 與 index 存入雜湊表。

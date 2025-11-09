@@ -1,0 +1,36 @@
+customers (顧客表)
+id (PK, INT, AUTO_INCREMENT)
+name (VARCHAR)
+email (VARCHAR, UNIQUE)
+created_at (TIMESTAMP)
+
+products (產品表)
+id (PK, INT, AUTO_INCREMENT)
+name (VARCHAR)
+price (DECIMAL) - 產品的目前定價
+description (TEXT)
+
+orders (訂單表)
+id (PK, INT, AUTO_INCREMENT)
+customer_id (FK, INT) - 關聯到 customers.id
+order_date (TIMESTAMP) - 下單時間
+status (VARCHAR) - 例如 'pending', 'shipped', 'cancelled'
+total_amount (DECIMAL) - 這張訂單的總金額
+
+order_items (訂單品項表)
+id (PK, INT, AUTO_INCREMENT)
+order_id (FK, INT) - 關聯到 orders.id
+product_id (FK, INT) - 關聯到 products.id
+quantity (INT) - 購買數量
+price_per_unit (DECIMAL) - 購買當下的單價 (避免 products.price 變動影響歷史訂單)
+
+3 個索引 (Index) 及其理由：
+orders(customer_id)
+理由： 這是最關鍵的索引之一。因為系統一定會頻繁查詢「某位顧客的所有訂單」（如 Q2-2 (B) 和 Q3-2 所述），
+這個索引能極大加速 WHERE customer_id = ? 的篩選。
+order_items(order_id)
+理由： 當我們查到一張訂單 orders 後，必定需要接著查詢這張訂單包含了哪些品項 order_items。
+這個索引能讓我們快速抓取該訂單的所有品項。
+orders(order_date)
+理由： 業務上經常需要依「時間範圍」來查詢訂單，例如 Q2-2 (A) 提到的「近 30 天」，或是 Q3-2 的「近一年」。
+對 order_date 建立索引能加速日期區間的篩選。

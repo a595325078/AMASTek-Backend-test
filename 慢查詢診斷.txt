@@ -1,0 +1,30 @@
+情境：查「某客戶近一年訂單」的 API 需 8 秒。
+
+以下是我會優先排查的 3 個可能原因與對應優化：
+
+原因一：缺乏索引 (Missing Index)
+
+描述： 這是最常見的原因。查詢 orders (訂單表) 時，SQL 的 WHERE 條件同時包含了 customer_id = ? 和 order_date BETWEEN ? AND ?。
+如果 customer_id 或 order_date 沒有建立索引，資料庫就需要進行「全表掃描」(Full Table Scan)，在巨量資料下會非常慢。
+
+優化： 在 orders 表上建立「複合索引 (Composite Index)」，欄位順序建議為 (customer_id, order_date)。
+這樣資料庫可以先快速鎖定該客戶，然後在該客戶的資料範圍內快速篩選日期，效率最高。
+
+原因二：N+1 查詢問題 (N+1 Query)
+
+描述： API 在撈取訂單列表時，可能犯了 N+1 錯誤。意思是：程式先用 1 次 SQL 查出該客戶近一年的 100 筆訂單 (Order)；
+接著，程式在迴圈 (Loop) 中，又分別為這 100 筆訂單各自發出 1 次 SQL 查詢，去抓取它們的詳細品項 (Order Items)。總共執行了 1 + 100 = 101 次資料庫查詢，造成大量延遲。
+
+優化： 修改程式碼，使用 JOIN 語法（例如 LEFT JOIN order_items），或使用應用程式框架 (ORM) 提供的預先載入 (Eager Loading) 功能。
+目標是將 N+1 次查詢，合併為 1 次或 2 次的 SQL 查詢就取回所有需要的資料。
+
+原因三：資料傳輸量過大 (Large Data Payload)
+
+描述： 資料庫查詢可能很快（例如 0.5 秒），但該客戶近一年的訂單資料量「本身」就非常龐大（例如 50 萬筆紀錄，或每筆紀錄包含很多 TEXT 欄位），
+導致 8 秒鐘大部分花在「資料庫 -> API 伺服器」的網路傳輸，以及 API 伺服器「序列化」這些大量資料的時間。
+
+優化：
+
+(A) 分頁 (Pagination)： 這是必要的。API 不應一次回傳一整年的資料，應強制要求分頁（例如一次 50 筆）。
+
+(B) 減少欄位： 在 SELECT 語句中，只選擇前端列表頁「必要」的欄位（例如 id, order_date, total_amount），避免 SELECT *，尤其是避免撈取 description 這種大型文字欄位。

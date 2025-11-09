@@ -1,0 +1,76 @@
+Method                         Path                                                說明
+POST                      /work-orders                             建立一筆新的工單
+PATCH                   /work-orders/{id}/status          更新指定工單的狀態 (只更新狀態)
+GET                        /work-orders                              查詢工單列表
+
+
+建立工單
+
+Request: POST /work-orders
+
+{
+  "customer_id": 123,
+  "product_id": 789,
+  "due_date": "2025-12-10T17:00:00Z"
+}
+
+Response: (HTTP 201 Created)
+
+{
+  "id": 1,
+  "customer_id": 123,
+  "product_id": 789,
+  "due_date": "2025-12-10T17:00:00Z",
+  "status": "new",
+  "created_at": "2025-11-08T10:30:00Z"
+}
+
+更新狀態
+
+Request: PATCH /work-orders/1/status
+
+{
+  "status": "in_progress"
+}
+
+Response: (HTTP 200 OK)
+
+{
+  "id": 1,
+  "customer_id": 123,
+  "product_id": 789,
+  "due_date": "2025-12-10T17:00:00Z",
+  "status": "in_progress",
+  "created_at": "2025-11-08T10:30:00Z",
+  "updated_at": "2025-11-08T11:00:00Z"
+}
+
+查詢某客戶工單 (依日期排序、分頁)
+
+Request: GET /work-orders?customer_id=123&sort=due_date:asc&page=1&limit=20
+Response: (HTTP 200 OK)
+
+{
+  "data": [
+    {
+      "id": 1,
+      "customer_id": 123,
+      "product_id": 789,
+      "due_date": "2025-12-10T17:00:00Z",
+      "status": "in_progress"
+    },
+    {
+      "id": 2,
+      "customer_id": 123,
+      "product_id": 456,
+      "due_date": "2025-12-15T10:00:00Z",
+      "status": "new"
+    }
+  ],
+  "pagination": {
+    "current_page": 1,
+    "total_items": 2,
+    "total_pages": 1,
+    "limit": 20
+  }
+}

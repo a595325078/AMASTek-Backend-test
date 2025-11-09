@@ -1,0 +1,36 @@
+(A) 近 30 天每位顧客總消費金額（依總消費金額排序）
+
+SELECT
+    c.id AS customer_id,
+    c.name AS customer_name,
+    SUM(o.total_amount) AS total_spent_30d
+FROM
+    customers c
+JOIN
+    orders o ON c.id = o.customer_id
+WHERE
+    o.order_date >= (CURRENT_DATE - INTERVAL '30 day')
+GROUP BY
+    c.id, c.name
+ORDER BY
+    total_spent_30d DESC;
+
+(B) 指定顧客 :customer_id 的前 3 名產品（依累計金額排序）
+
+SELECT
+    p.id AS product_id,
+    p.name AS product_name,
+    SUM(oi.quantity * oi.price_per_unit) AS total_amount_spent
+FROM
+    order_items oi
+JOIN
+    products p ON oi.product_id = p.id
+JOIN
+    orders o ON oi.order_id = o.id
+WHERE
+    o.customer_id = :customer_id -- :customer_id 是傳入的參數
+GROUP BY
+    p.id, p.name
+ORDER BY
+    total_amount_spent DESC
+LIMIT 3;

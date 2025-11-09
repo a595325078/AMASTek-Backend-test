@@ -1,7 +1,7 @@
-Method                         Path                                                說明
-POST                      /work-orders                             建立一筆新的工單
-PATCH                   /work-orders/{id}/status          更新指定工單的狀態 (只更新狀態)
-GET                        /work-orders                              查詢工單列表
+Method                         Path                                                 說明
+POST                             /work-orders                                  建立一筆新的工單
+PATCH                           /work-orders/{id}/status              更新指定工單的狀態 (只更新狀態)
+GET                                /work-orders                                  查詢工單列表
 
 
 建立工單
